@@ -1,0 +1,173 @@
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "rhel-openssl-3.0.x", "rhel-openssl-1.0.x"]
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// Track: FOUNDATION | LEADERSHIP
+// Role: LEARNER | ADMIN
+// ModuleType: VIDEO | MAP | QUIZ | CHECKLIST | REFLECTION | BRIEFING
+// ProgressStatus: NOT_STARTED | IN_PROGRESS | COMPLETE
+
+model Cohort {
+  id        String   @id @default(cuid())
+  name      String
+  startDate DateTime
+  users     User[]
+  createdAt DateTime @default(now())
+}
+
+model User {
+  id              String   @id @default(cuid())
+  name            String
+  email           String   @unique
+  title           String
+  vertical        String
+  country         String
+  track           String
+  role            String   @default("LEARNER")
+  managerName     String?
+  buddyName       String?
+  startDate       DateTime
+  cohortId        String?
+  cohort          Cohort?  @relation(fields: [cohortId], references: [id])
+  avatarColor     String   @default("#E8252A")
+  createdAt       DateTime @default(now())
+
+  progress        Progress[]
+  quizAttempts    QuizAttempt[]
+  checklistDone   ChecklistCompletion[]
+  reflections     Reflection[]
+  certificates    Certificate[]
+}
+
+model Module {
+  id          String     @id @default(cuid())
+  slug        String     @unique
+  type        String
+  title       String
+  subtitle    String?
+  track       String     @default("BOTH") // FOUNDATION | LEADERSHIP | BOTH
+  day         Int        @default(1)
+  order       Int        @default(0)
+  body        String     @default("")
+  videoUrl    String?
+  videoIsPlaceholder Boolean @default(true)
+  quoteText   String?
+  quoteAuthor String?
+  passThreshold Int      @default(80)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  quizQuestions   QuizQuestion[]
+  checklistItems  ChecklistItem[]
+  mapPoints       MapPoint[]
+  reflectionQs    ReflectionQuestion[]
+  progress        Progress[]
+  quizAttempts    QuizAttempt[]
+  reflections     Reflection[]
+}
+
+model QuizQuestion {
+  id          String   @id @default(cuid())
+  moduleId    String
+  module      Module   @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  question    String
+  options     String   // JSON array of strings
+  correctIndex Int
+  explanation String?
+  order       Int      @default(0)
+}
+
+model ChecklistItem {
+  id        String   @id @default(cuid())
+  moduleId  String
+  module    Module   @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  label     String
+  helper    String?
+  order     Int      @default(0)
+
+  completions ChecklistCompletion[]
+}
+
+model MapPoint {
+  id              String @id @default(cuid())
+  moduleId        String
+  module          Module @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  country         String
+  x               Float  // percent position on map (0-100)
+  y               Float
+  partners        Int    @default(0)
+  channelPartners Int    @default(0)
+  livesImpacted   Int    @default(0)
+  blurb           String @default("")
+  order           Int    @default(0)
+}
+
+model ReflectionQuestion {
+  id        String @id @default(cuid())
+  moduleId  String
+  module    Module @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  prompt    String
+  order     Int    @default(0)
+}
+
+model Progress {
+  id          String         @id @default(cuid())
+  userId      String
+  user        User           @relation(fields: [userId], references: [id])
+  moduleId    String
+  module      Module         @relation(fields: [moduleId], references: [id])
+  status      String         @default("NOT_STARTED")
+  completedAt DateTime?
+  updatedAt   DateTime       @updatedAt
+
+  @@unique([userId, moduleId])
+}
+
+model QuizAttempt {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  moduleId  String
+  module    Module   @relation(fields: [moduleId], references: [id])
+  scorePct  Int
+  passed    Boolean
+  createdAt DateTime @default(now())
+}
+
+model ChecklistCompletion {
+  id              String        @id @default(cuid())
+  userId          String
+  user            User          @relation(fields: [userId], references: [id])
+  itemId          String
+  item            ChecklistItem @relation(fields: [itemId], references: [id])
+  completedWith   String?
+  completedAt     DateTime      @default(now())
+
+  @@unique([userId, itemId])
+}
+
+model Reflection {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  moduleId  String
+  module    Module   @relation(fields: [moduleId], references: [id])
+  answers   String   // JSON: [{question, answer}]
+  npsScore  Int
+  createdAt DateTime @default(now())
+}
+
+model Certificate {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  track     String
+  slug      String   @unique
+  issuedAt  DateTime @default(now())
+}

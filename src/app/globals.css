@@ -2,25 +2,139 @@
 
 :root {
   --background: #ffffff;
-  --foreground: #171717;
+  --foreground: #1a1a1a;
+
+  --brand-red: #e8252a;
+  --brand-red-dark: #c31b20;
+  --brand-blue: #005baa;
+  --brand-yellow: #fcaf17;
+  --gray-100: #efefef;
+  --gray-300: #d6d6d6;
+  --gray-500: #9e9e9e;
+  --gray-700: #5c5c5c;
+  --gray-900: #262626;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --color-brand-red: var(--brand-red);
+  --color-brand-red-dark: var(--brand-red-dark);
+  --color-brand-blue: var(--brand-blue);
+  --color-brand-yellow: var(--brand-yellow);
+  --color-gray-100: var(--gray-100);
+  --color-gray-300: var(--gray-300);
+  --color-gray-500: var(--gray-500);
+  --color-gray-700: var(--gray-700);
+  --color-gray-900: var(--gray-900);
+  --font-sans: var(--font-poppins);
+  --font-quote: Georgia, "Times New Roman", serif;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-poppins), Arial, Helvetica, sans-serif;
+}
+
+/* MSM Unify signature shape: smooth upper-right & lower-left, sharp upper-left & lower-right */
+.brand-shape {
+  border-radius: 0 28px 0 28px;
+}
+.brand-shape-sm {
+  border-radius: 0 14px 0 14px;
+}
+.brand-shape-lg {
+  border-radius: 0 48px 0 48px;
+}
+.brand-shape-inv {
+  border-radius: 28px 0 28px 0;
+}
+
+/* Elevation: tinted shadows, never pure black */
+.elev-1 {
+  box-shadow: 0 1px 2px rgba(38, 38, 38, 0.06), 0 1px 1px rgba(38, 38, 38, 0.04);
+}
+.elev-2 {
+  box-shadow: 0 4px 16px rgba(38, 38, 38, 0.08), 0 1px 3px rgba(38, 38, 38, 0.06);
+}
+.elev-hover {
+  transition: box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1), transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.25s ease;
+}
+.elev-hover:hover {
+  box-shadow: 0 12px 28px rgba(38, 38, 38, 0.1), 0 2px 6px rgba(38, 38, 38, 0.06);
+  transform: translateY(-2px);
+}
+.elev-hover:active {
+  transform: translateY(0) scale(0.99);
+}
+
+.press {
+  transition: transform 0.15s cubic-bezier(0.16, 1, 0.3, 1), filter 0.15s ease;
+}
+.press:active {
+  transform: scale(0.97);
+}
+
+.input {
+  width: 100%;
+  border: 1px solid var(--gray-300);
+  border-radius: 6px;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  color: var(--gray-900);
+}
+.input:focus {
+  outline: none;
+  border-color: var(--brand-red);
+}
+
+.quote {
+  font-family: var(--font-quote);
+  font-style: italic;
+}
+
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.animate-rise {
+  animation: rise-in 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes pop-badge {
+  0% {
+    opacity: 0;
+    transform: scale(0.6) rotate(-8deg);
+  }
+  60% {
+    opacity: 1;
+    transform: scale(1.08) rotate(3deg);
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+  }
+}
+.animate-badge {
+  animation: pop-badge 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+::selection {
+  background: var(--brand-yellow);
+  color: #1a1a1a;
+}
+
+.scrollbar-thin::-webkit-scrollbar {
+  height: 6px;
+  width: 6px;
+}
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background: var(--gray-300);
+  border-radius: 4px;
 }
